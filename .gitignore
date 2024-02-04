@@ -1,0 +1,11 @@
+migrations/
+__pycache__/git remote add origin git@github.com:ByFopali/vocabulary-app.git
+media/
+.idea/
+*.pyc
+*.pyo
+*.log
+.swp
+.env
+alembic/versions/*
+!alembic/versions/.gitkeep

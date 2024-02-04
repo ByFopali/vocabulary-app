@@ -1,0 +1,24 @@
+[tool.poetry]
+name = "voc-app"
+version = "0.1.0"
+description = ""
+authors = ["ByFopali <vadymboroliuk4@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+fastapi = {extras = ["all"], version = "^0.109.1"}
+asyncpg = "^0.29.0"
+alembic = "^1.13.1"
+sqlalchemy = {extras = ["asyncio"], version = "^2.0.25"}
+passlib = {extras = ["bcrypt"], version = "^1.7.4"}
+email-validator = "^2.1.0.post1"
+python-jose = {extras = ["cryptography"], version = "^3.3.0"}
+
+
+[tool.poetry.group.dev.dependencies]
+black = "^24.1.1"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

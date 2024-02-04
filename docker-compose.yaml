@@ -1,0 +1,23 @@
+version: '3.7'
+services:
+    postgres:
+        container_name: pg_vocabulary_app_db
+        image: postgres
+        environment:
+            - POSTGRES_USER=postgres
+            - POSTGRES_PASSWORD=postgres
+            - POSTGRES_DB=test_db
+        ports:
+            - 5432:5432
+#        logging:
+#            options:
+#                max-size: 10m
+#                max-file: "3"
+    pgadmin:
+        container_name: vocabulary_app_pgadmin4
+        image: dpage/pgadmin4
+        environment:
+            - PGADMIN_DEFAULT_EMAIL=admin@admin.admin
+            - PGADMIN_DEFAULT_PASSWORD=admin
+        ports:
+            - "5050:80"

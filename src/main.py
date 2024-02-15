@@ -7,6 +7,7 @@ from fastapi.responses import JSONResponse
 from fastapi.encoders import jsonable_encoder
 from auth.router import router as users_router
 
+
 app = FastAPI(
     title="Vocabulary App",
 )
@@ -22,6 +23,7 @@ async def validation_exception_handler(request: Request, exc: ValidationError):
 
 
 app.include_router(router=users_router, prefix=settings.api_v1_prefix)
+# app.include_router(router=test_users_router, prefix=settings.api_v1_prefix)
 
 if __name__ == "__main__":
     uvicorn.run("main:app", reload=True)

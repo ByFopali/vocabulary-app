@@ -1,20 +1,17 @@
-from fastapi import Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 from auth.schemas import UserCreate
 from src.models import User
 from sqlalchemy import select
 from fastapi import HTTPException, status
-from auth.utils import (
-    hash_pass,
-    create_access_token,
-    create_refresh_token,
-    verify_password,
-)
-from auth.dependencies import user_by_id
+from auth.utils import hash_pass
 
 
-async def get_user(session: AsyncSession, user_id: int) -> User | None:
+async def get_user_by_id(session: AsyncSession, user_id: int) -> User | None:
     return await session.get(User, user_id)
+
+
+async def get_user_by_email(session: AsyncSession, email: str) -> User | None:
+    return await session.get(User, email)
 
 
 async def create_users(
@@ -71,7 +68,6 @@ async def create_users(
 
     hashed_pass = hash_pass(user.hashed_password)
     user.hashed_password = hashed_pass
-
     new_user = User(**user.model_dump())
     session.add(new_user)
     await session.commit()

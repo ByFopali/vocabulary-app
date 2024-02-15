@@ -6,7 +6,7 @@ from pydantic import BaseModel, EmailStr, ConfigDict
 
 class UserBase(BaseModel):
     username: Annotated[str, MinLen(5), MaxLen(50)]
-    hashed_password: str
+    hashed_password: Annotated[str, MinLen(8)]
     email: EmailStr
 
 
@@ -35,6 +35,12 @@ class User(UserBase):
     updated_at: datetime
 
 
-# class TokenSchema(BaseModel):
-#     access_token: str
-#     refresh_token: str
+class Token(BaseModel):
+    access_token: str
+    token_type: str
+
+
+class CurrentUserData(BaseModel):
+    id: int
+    username: str
+    email: str

@@ -13,8 +13,8 @@ class GetEnvValues(BaseSettings):
     DB_NAME: str = os.environ.get("DB_NAME")
     DB_USER: str = os.environ.get("DB_USER")
     DB_PASS: str = os.environ.get("DB_PASS")
-    ACCESS_TOKEN_EXPIRE_MINUTES: str = os.environ.get("ACCESS_TOKEN_EXPIRE_MINUTES")
-    REFRESH_TOKEN_EXPIRE_MINUTES: str = os.environ.get("REFRESH_TOKEN_EXPIRE_MINUTES")
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = os.environ.get("ACCESS_TOKEN_EXPIRE_MINUTES")
+    REFRESH_TOKEN_EXPIRE_MINUTES: int = os.environ.get("REFRESH_TOKEN_EXPIRE_MINUTES")
     ALGORITHM: str = os.environ.get("ALGORITHM")
     JWT_SECRET_KEY: str = os.environ.get("JWT_SECRET_KEY")
     JWT_REFRESH_SECRET_KEY: str = os.environ.get("JWT_REFRESH_SECRET_KEY")
@@ -23,8 +23,8 @@ class GetEnvValues(BaseSettings):
 class JWTSettings(BaseModel):
     env_values: GetEnvValues = GetEnvValues()
 
-    access_token_expire_minutes: str = env_values.ACCESS_TOKEN_EXPIRE_MINUTES
-    refresh_token_expire_minutes: str = env_values.REFRESH_TOKEN_EXPIRE_MINUTES
+    access_token_expire_minutes: int = env_values.ACCESS_TOKEN_EXPIRE_MINUTES
+    refresh_token_expire_minutes: int = env_values.REFRESH_TOKEN_EXPIRE_MINUTES
     algorithm: str = env_values.ALGORITHM
     secret_key: str = env_values.JWT_SECRET_KEY
     refresh_secret_key: str = env_values.JWT_REFRESH_SECRET_KEY

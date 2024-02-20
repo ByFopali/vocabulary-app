@@ -1,9 +1,11 @@
+from typing import Annotated
+
 from sqlalchemy.ext.asyncio import AsyncSession
-from auth.schemas import UserCreate
+from auth.schemas import UserCreate, UserUpdate, UserUpdatePartial, CurrentUserData
 from src.models import User
 from sqlalchemy import select
-from fastapi import HTTPException, status
-from auth.utils import hash_pass
+from fastapi import HTTPException, status, Depends
+from auth.utils import hash_pass, get_current_user
 
 
 async def get_user_by_id(session: AsyncSession, user_id: int) -> User | None:
@@ -73,3 +75,24 @@ async def create_users(
     await session.commit()
 
     return new_user
+
+
+async def update_user(
+    session: AsyncSession,
+    current_user: Annotated[
+        CurrentUserData,
+        Depends(get_current_user),
+    ],
+    user: User,
+    user_update: UserUpdate | UserUpdatePartial,
+    partial: bool = False,
+) -> User:
+    if current_user.username != user.username:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You don't have permission to access this resource",
+        )
+    for name, value in user_update.model_dump(exclude_unset=partial).items():
+        setattr(user, name, value)
+    await session.commit()
+    return user

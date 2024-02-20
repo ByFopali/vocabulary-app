@@ -21,7 +21,7 @@ class UserUpdate(UserCreate):
 class UserUpdatePartial(UserCreate):
     username: str | None = None
     hashed_password: str | None = None
-    email: EmailStr | None = None
+    email: str | None = None
 
 
 class User(UserBase):

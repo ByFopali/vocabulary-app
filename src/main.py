@@ -13,7 +13,6 @@ app = FastAPI(
 )
 
 
-# Благодаря этой функции клиент видит ошибки, происходящие на сервере, вместо "Internal server error"
 @app.exception_handler(ValidationError)
 async def validation_exception_handler(request: Request, exc: ValidationError):
     return JSONResponse(
@@ -23,7 +22,7 @@ async def validation_exception_handler(request: Request, exc: ValidationError):
 
 
 app.include_router(router=users_router, prefix=settings.api_v1_prefix)
-# app.include_router(router=test_users_router, prefix=settings.api_v1_prefix)
+
 
 if __name__ == "__main__":
     uvicorn.run("main:app", reload=True)

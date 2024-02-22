@@ -7,6 +7,7 @@ from datetime import datetime, timedelta
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from auth.dependencies import user_by_id
 from src.models import User
 from src.config import settings
 from jose import jwt, JWTError
@@ -133,3 +134,20 @@ async def get_current_auth_user(
             detail="Could not validate credentials",
         )
     return user
+
+
+def has_permission(
+    user: User = Depends(user_by_id),
+    current_user: dict = Depends(get_current_user),
+):
+    if current_user["id"] != user.id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail=[
+                {
+                    "type": "user_id_taken",
+                    "loc": ["body"],
+                    "msg": f"You do not have permission to update this user's data",
+                }
+            ],
+        )

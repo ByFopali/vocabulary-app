@@ -44,3 +44,14 @@ class CurrentUserData(BaseModel):
     id: int
     username: str
     email: str
+
+
+class UserShow(BaseModel):
+    id: int
+    username: Annotated[str, MinLen(5), MaxLen(50)]
+    email: EmailStr
+    is_active: bool
+    is_superuser: bool
+    is_verified: bool
+    created_at: datetime
+    updated_at: datetime

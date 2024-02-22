@@ -1,19 +1,16 @@
-from typing import Annotated
-
-from sqlalchemy.ext.asyncio import AsyncSession
-from auth.schemas import UserCreate, UserUpdate, UserUpdatePartial, CurrentUserData
-from src.models import User
+from fastapi import HTTPException, status
 from sqlalchemy import select
-from fastapi import HTTPException, status, Depends
-from auth.utils import hash_pass, get_current_user
+from sqlalchemy.engine import Result
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from auth.schemas import User as PydanticUser, UserShow
+from auth.schemas import UserCreate, UserUpdatePartial
+from auth.utils import hash_pass
+from src.models import User
 
 
 async def get_user_by_id(session: AsyncSession, user_id: int) -> User | None:
     return await session.get(User, user_id)
-
-
-async def get_user_by_email(session: AsyncSession, email: str) -> User | None:
-    return await session.get(User, email)
 
 
 async def create_users(
@@ -77,22 +74,26 @@ async def create_users(
     return new_user
 
 
-async def update_user(
+async def update_users(
+    user_update: UserUpdatePartial,
+    user: PydanticUser,
     session: AsyncSession,
-    current_user: Annotated[
-        CurrentUserData,
-        Depends(get_current_user),
-    ],
-    user: User,
-    user_update: UserUpdate | UserUpdatePartial,
-    partial: bool = False,
-) -> User:
-    if current_user.username != user.username:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="You don't have permission to access this resource",
-        )
+    partial: bool = True,
+) -> PydanticUser:
     for name, value in user_update.model_dump(exclude_unset=partial).items():
-        setattr(user, name, value)
+        if name == "hashed_password" and value:
+            value = hash_pass(value)
+        setattr(
+            user,
+            name,
+            value,
+        )
     await session.commit()
     return user
+
+
+async def get_all_users(session: AsyncSession) -> list[UserShow]:
+    stmt = select(User).order_by(User.id)
+    result: Result = await session.execute(stmt)
+    users = result.scalars().all()
+    return list(users)

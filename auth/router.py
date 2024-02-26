@@ -1,19 +1,20 @@
 from typing import Annotated
-from fastapi import APIRouter, Depends, status, HTTPException, Request
+
+from fastapi import APIRouter, Depends, status
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.ext.asyncio import AsyncSession
-from src.models import db_helper
-from auth.schemas import UserCreate, User, CurrentUserData, UserUpdatePartial, UserShow
+
 from auth.crud import create_users, update_users, get_all_users
+from auth.dependencies import user_by_id
+from auth.schemas import Token
+from auth.schemas import UserCreate, User, CurrentUserData, UserUpdatePartial, UserShow
 from auth.utils import (
     login_for_access_token,
     get_current_auth_user,
     get_current_user,
-    hash_pass,
     has_permission,
 )
-from auth.dependencies import user_by_id
-from auth.schemas import Token
+from src.models import db_helper
 
 router = APIRouter(prefix="/auth/user", tags=["Auth"])
 

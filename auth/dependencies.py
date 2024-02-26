@@ -28,21 +28,21 @@ async def user_by_id(
     )
 
 
-async def user_by_email(
-    email: str,
-    session: AsyncSession = Depends(db_helper.session_dependency),
-) -> User:
-    user = await crud.get_user_by_email(session=session, email=email)
-    if user is not None:
-        return user
-
-    raise HTTPException(
-        status_code=status.HTTP_404_NOT_FOUND,
-        detail=[
-            {
-                "type": "user_email_taken",
-                "loc": ["body"],
-                "msg": f"User with email {email} not found!",
-            }
-        ],
-    )
+# async def user_by_email(
+#     email: str,
+#     session: AsyncSession = Depends(db_helper.session_dependency),
+# ) -> User:
+#     user = await crud.get_user_by_email(session=session, email=email)
+#     if user is not None:
+#         return user
+#
+#     raise HTTPException(
+#         status_code=status.HTTP_404_NOT_FOUND,
+#         detail=[
+#             {
+#                 "type": "user_email_taken",
+#                 "loc": ["body"],
+#                 "msg": f"User with email {email} not found!",
+#             }
+#         ],
+#     )

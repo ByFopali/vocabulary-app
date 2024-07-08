@@ -12,7 +12,7 @@ from api.schemas.grammar_element_schemas import (
     GrammarElementUpdatePartial,
 )
 from src.models import db_helper
-from api.dependencies import grammar_element_by_id
+from api.dependencies import grammar_element_by_id, if_grammar_element_exists
 
 router = APIRouter(prefix="/grammar_element", tags=["GrammarElements"])
 
@@ -24,7 +24,7 @@ router = APIRouter(prefix="/grammar_element", tags=["GrammarElements"])
     response_model=GrammarElement,
 )
 async def create_a_grammar_element(
-    grammar_element: GrammarElementCreate,
+    grammar_element: GrammarElementCreate = Depends(if_grammar_element_exists),
     session: AsyncSession = Depends(db_helper.session_dependency),
 ):
     return await create_grammar_element(
@@ -62,7 +62,7 @@ async def get_user_by_id(
     response_model=GrammarElement,
 )
 async def update_user(
-    grammar_element_update: GrammarElementUpdatePartial,
+    grammar_element_update: GrammarElementUpdatePartial = Depends(if_grammar_element_exists),
     grammar_element: GrammarElement = Depends(grammar_element_by_id),
     session: AsyncSession = Depends(db_helper.session_dependency),
 ):

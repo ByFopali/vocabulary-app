@@ -17,8 +17,7 @@ class GrammarElement(Base):
         nullable=False,
     )
 
-    words: Mapped["Word"] = relationship(
-        "Word",
+    words: Mapped[list["Word"]] = relationship(
         back_populates="grammar_element",
     )
 

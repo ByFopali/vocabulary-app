@@ -5,14 +5,14 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.models import db_helper, User
 
-from auth import crud
+from auth.crud import get_user_by_id
 
 
 async def user_by_id(
     user_id: Annotated[int, Path(ge=1)],
     session: AsyncSession = Depends(db_helper.session_dependency),
 ) -> User:
-    user = await crud.get_user_by_id(session=session, user_id=user_id)
+    user = await get_user_by_id(session=session, user_id=user_id)
     if user is not None:
         return user
 

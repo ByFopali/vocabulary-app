@@ -6,6 +6,7 @@ from passlib.context import CryptContext
 from datetime import datetime, timedelta
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import selectinload
 
 from auth.dependencies import user_by_id
 from src.models import User
@@ -151,3 +152,22 @@ def has_permission(
                 }
             ],
         )
+
+
+async def get_current_auth_user_model(
+    session: AsyncSession,
+    user: Annotated[dict, Depends(get_current_user)],
+):
+
+    auth_user = await session.scalar(
+        select(User)
+        .where(User.id == user["id"])
+    )
+
+    if auth_user is None:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Could not validate credentials",
+        )
+
+    return auth_user

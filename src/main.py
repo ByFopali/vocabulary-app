@@ -1,12 +1,11 @@
 import uvicorn
 from fastapi import FastAPI, Request, status
+from fastapi.encoders import jsonable_encoder
+from fastapi.responses import JSONResponse
 from pydantic import ValidationError
 
+from api import main_api_router as api_router
 from config import settings
-from fastapi.responses import JSONResponse
-from fastapi.encoders import jsonable_encoder
-from auth.router import router as users_router
-from api.router.grammar_element_router import router as grammar_element_router
 
 
 app = FastAPI(
@@ -22,8 +21,7 @@ async def validation_exception_handler(request: Request, exc: ValidationError):
     )
 
 
-app.include_router(router=users_router, prefix=settings.api_v1_prefix)
-app.include_router(router=grammar_element_router, prefix=settings.api_v1_prefix)
+app.include_router(router=api_router, prefix=settings.api_v1_prefix)
 
 
 if __name__ == "__main__":

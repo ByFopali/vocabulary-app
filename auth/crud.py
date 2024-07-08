@@ -5,7 +5,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from auth.schemas import User as PydanticUser, UserShow
 from auth.schemas import UserCreate, UserUpdatePartial
-from auth.utils import hash_pass
 from src.models import User
 
 
@@ -17,7 +16,7 @@ async def create_users(
     user: UserCreate,
     session: AsyncSession,
 ) -> User:
-
+    from auth.utils import hash_pass
     existing_user_username = await session.execute(
         select(User).filter(User.username == user.username)
     )
@@ -80,6 +79,7 @@ async def update_users(
     session: AsyncSession,
     partial: bool = True,
 ) -> PydanticUser:
+    from auth.utils import hash_pass
     for name, value in user_update.model_dump(exclude_unset=partial).items():
         if name == "hashed_password" and value:
             value = hash_pass(value)

@@ -7,7 +7,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from .base import Base
 
 if TYPE_CHECKING:
-    from .language_user_association import LanguageUserAssociation
+    from .topic import Topic
 
 
 class User(Base):
@@ -53,7 +53,8 @@ class User(Base):
         nullable=False,
     )
 
-    languages_details: Mapped[list["LanguageUserAssociation"]] = relationship(
+    topics: Mapped[list["Topic"]] = relationship(
+        # "Topic",
         back_populates="user",
     )
 

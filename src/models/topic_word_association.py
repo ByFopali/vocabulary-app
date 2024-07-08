@@ -19,8 +19,18 @@ class TopicWordAssociation(Base):
         ),
     )
 
-    word_id: Mapped[int] = mapped_column(ForeignKey("words.id"))
-    topic_id: Mapped[int] = mapped_column(ForeignKey("topics.id"))
+    word_id: Mapped[int] = mapped_column(
+        ForeignKey(
+            "words.id",
+            ondelete="CASCADE",
+        )
+    )
+    topic_id: Mapped[int] = mapped_column(
+        ForeignKey(
+            "topics.id",
+            ondelete="CASCADE",
+        )
+    )
 
     # association between Assocation -> Word
     word: Mapped["Word"] = relationship(

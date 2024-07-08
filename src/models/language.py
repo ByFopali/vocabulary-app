@@ -6,7 +6,6 @@ from .base import Base
 
 if TYPE_CHECKING:
     from .topic import Topic
-    from .language_user_association import LanguageUserAssociation
 
 
 class Language(Base):
@@ -17,12 +16,8 @@ class Language(Base):
         nullable=False,
     )
 
-    topics: Mapped["Topic"] = relationship(
-        "Topic",
-        back_populates="language",
-    )
-
-    users_details: Mapped[list["LanguageUserAssociation"]] = relationship(
+    topics: Mapped[list["Topic"]] = relationship(
+        # "Topic",
         back_populates="language",
     )
 

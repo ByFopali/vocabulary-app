@@ -14,7 +14,7 @@ class Word(Base):
 
     learnt_word: Mapped[str] = mapped_column(
         String(20),
-        unique=True,
+        unique=False,
         nullable=False,
     )
 
@@ -37,17 +37,12 @@ class Word(Base):
     )
 
     grammar_element: Mapped["GrammarElement"] = relationship(
-        "GrammarElement",
         back_populates="words",
     )
-    # use or topics or topics_details!
-    # topics: Mapped[list["Topic"]] = relationship(
-    #     secondary="topic_word_association",
-    #     back_populates="words",
-    # )
 
     topics_details: Mapped[list["TopicWordAssociation"]] = relationship(
         back_populates="word",
+        cascade="all, delete, delete-orphan",
     )
 
     def __str__(self):

@@ -1,20 +1,21 @@
 from typing import TYPE_CHECKING
-from sqlalchemy import String, Text, ForeignKey
+
+from sqlalchemy import String, ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from .base import Base
 
 if TYPE_CHECKING:
-    from .word import Word
     from .topic_word_association import TopicWordAssociation
     from .language import Language
+    from .user import User
 
 
 class Topic(Base):
 
     name: Mapped[str] = mapped_column(
         String(50),
-        unique=True,
+        unique=False,
         nullable=False,
     )
 
@@ -22,18 +23,22 @@ class Topic(Base):
         ForeignKey("languages.id"),
     )
 
-    # use or words or words_details!
-    # words: Mapped[list["Word"]] = relationship(
-    #     secondary="topic_word_association",
-    #     back_populates="topics",
-    # )
+    user_id: Mapped[int] = mapped_column(
+        ForeignKey("users.id"),
+    )
 
     words_details: Mapped[list["TopicWordAssociation"]] = relationship(
         back_populates="topic",
+        cascade="all, delete, delete-orphan",
     )
 
     language: Mapped["Language"] = relationship(
-        "Language",
+        # "Language",
+        back_populates="topics",
+    )
+
+    user: Mapped["User"] = relationship(
+        # "Language",
         back_populates="topics",
     )
 

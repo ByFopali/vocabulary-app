@@ -12,7 +12,7 @@ from auth.utils import (
     login_for_access_token,
     get_current_auth_user,
     get_current_user,
-    has_permission,
+    has_permission, refresh_access_token,
 )
 from src.models import db_helper
 
@@ -70,6 +70,15 @@ async def get_access_token(
         form_data=form_data,
         session=session,
     )
+
+
+@router.post("/token/refresh", response_model=Token)
+async def refresh_token(
+    refresh_token: str,
+    session: AsyncSession = Depends(db_helper.session_dependency),
+):
+    return await refresh_access_token(refresh_token, session)
+
 
 
 @router.get(

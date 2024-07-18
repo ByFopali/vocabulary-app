@@ -50,24 +50,41 @@ async def authenticate_user(
     return user
 
 
-def create_access_token(
+def create_access_and_refresh_tokens(
     username: str,
     user_id: int,
     email: str,
-    expires_delta: timedelta,
+    access_expires_delta: timedelta,
+    refresh_expires_delta: timedelta,
 ):
-    encode = {
+    access_encode = {
         "username": username,
         "id": user_id,
         "email": email,
     }
-    expires = datetime.utcnow() + expires_delta
-    encode.update({"exp": expires})
-    return jwt.encode(
-        encode,
+    refresh_encode = {
+        "username": username,
+        "id": user_id,
+    }
+
+    access_expires = datetime.utcnow() + access_expires_delta
+    refresh_expires = datetime.utcnow() + refresh_expires_delta
+
+    access_encode.update({"exp": access_expires})
+    refresh_encode.update({"exp": refresh_expires})
+
+    access_token = jwt.encode(
+        access_encode,
         settings.jwt.secret_key,
         settings.jwt.algorithm,
     )
+    refresh_token = jwt.encode(
+        refresh_encode,
+        settings.jwt.secret_key,
+        settings.jwt.algorithm,
+    )
+
+    return access_token, refresh_token
 
 
 async def login_for_access_token(
@@ -84,17 +101,69 @@ async def login_for_access_token(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Could not validate credentials",
         )
-    token = create_access_token(
+
+    access_token, refresh_token = create_access_and_refresh_tokens(
         user.username,
         user.id,
         user.email,
         timedelta(minutes=settings.jwt.access_token_expire_minutes),
+        timedelta(days=settings.jwt.refresh_token_expire_days),
     )
 
     return {
-        "access_token": token,
+        "access_token": access_token,
+        "refresh_token": refresh_token,
         "token_type": "bearer",
     }
+
+
+async def refresh_access_token(
+    refresh_token: str,
+    session: AsyncSession,
+):
+    try:
+        payload = jwt.decode(refresh_token, settings.jwt.secret_key, algorithms=[settings.jwt.algorithm])
+        username: str = payload.get("username")
+        user_id: int = payload.get("id")
+
+        if username is None or user_id is None:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid refresh token",
+            )
+
+        # Optionally verify user existence in the database
+        user = await session.get(User, user_id)
+        if not user:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="User not found",
+            )
+
+        access_token, new_refresh_token = create_access_and_refresh_tokens(
+            username,
+            user_id,
+            user.email,
+            timedelta(minutes=settings.jwt.access_token_expire_minutes),
+            timedelta(days=settings.jwt.refresh_token_expire_days),
+        )
+
+        return {
+            "access_token": access_token,
+            "refresh_token": new_refresh_token,
+            "token_type": "bearer",
+        }
+
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Refresh token expired",
+        )
+    except jwt.JWTError:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid refresh token",
+        )
 
 
 async def get_current_user(

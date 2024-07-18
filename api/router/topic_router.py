@@ -7,7 +7,8 @@ from api.crud.topic_crud import (
     create_topic,
     update_topic,
     get_all_topics,
-    delete_the_topic
+    delete_the_topic,
+    get_all_topics_for_auth_user,
 )
 from api.dependencies import topic_by_id, if_topic_exists_for_specific_user
 from api.schemas.topic_schemas import (
@@ -49,6 +50,21 @@ async def get_all_topics_list(
 
 
 @router.get(
+    "/all-user-topics/",
+    summary="Get all topics for auth user",
+    response_model=list[TopicPydantic],
+)
+async def get_all_topics_list(
+    user: Annotated[dict, Depends(get_current_user)],
+    session: AsyncSession = Depends(db_helper.session_dependency),
+):
+    return await get_all_topics_for_auth_user(
+        user=user,
+        session=session,
+    )
+
+
+@router.get(
     "/{topic_id}/",
     summary="Get topic by id",
     response_model=TopicPydantic,
@@ -70,11 +86,7 @@ async def delete_topic(
     topic: Topic = Depends(topic_by_id),
 ) -> None:
 
-    return await delete_the_topic(
-        user=user,
-        session=session,
-        topic_id=topic.id
-    )
+    return await delete_the_topic(user=user, session=session, topic_id=topic.id)
 
 
 @router.patch(

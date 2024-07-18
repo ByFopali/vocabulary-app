@@ -71,6 +71,16 @@ async def get_all_topics(
     return list(topics)
 
 
+async def get_all_topics_for_auth_user(
+    user: Annotated[dict, Depends(get_current_user)],
+    session: AsyncSession,
+) -> list[Topic]:
+    stmt = select(Topic).where(Topic.user_id == user["id"]).order_by(Topic.id)
+    result: Result = await session.execute(stmt)
+    topics = result.scalars().all()
+    return list(topics)
+
+
 async def delete_the_topic(
     user: Annotated[dict, Depends(get_current_user)],
     topic_id: int,

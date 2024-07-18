@@ -67,6 +67,33 @@ async def get_all_words(
     return list(words)
 
 
+async def get_all_words_for_specific_topic(
+    topic_id: int,
+    session: AsyncSession,
+    user: Annotated[dict, Depends(get_current_user)],
+) -> list[Word]:
+
+    stmt = select(Topic).where(Topic.id == topic_id, Topic.user_id == user["id"])
+    result: Result = await session.execute(stmt)
+    topic = result.scalars().first()
+
+    if not topic:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Topic not found or does not belong to the authenticated user",
+        )
+
+    stmt = (
+        select(Word)
+        .join(TopicWordAssociation, TopicWordAssociation.word_id == Word.id)
+        .where(TopicWordAssociation.topic_id == topic_id)
+        .order_by(Word.id)
+    )
+    result: Result = await session.execute(stmt)
+    words = result.scalars().all()
+    return list(words)
+
+
 async def delete_the_word(
     user: Annotated[dict, Depends(get_current_user)],
     word_id: int,
